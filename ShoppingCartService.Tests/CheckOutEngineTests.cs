@@ -21,15 +21,7 @@ namespace ShoppingCartService.Tests
             });
             var mapper = config.CreateMapper();
             var checkoutEngine = new CheckOutEngine(shippingCalculator, mapper);
-
-            Cart cart = new Cart()
-            {
-                CustomerId = "id1",
-                CustomerType = CustomerType.Standard,
-                Items = new List<Item>() { new Item() { Price = 1, ProductName = "Bengt", Quantity = 1 } },
-                ShippingAddress = new Address() { City = "Dallas", Country = "USA" },
-                ShippingMethod = ShippingMethod.Standard
-            };
+            Cart cart = CreateCart();
 
             // Act
             var checkoutDto = checkoutEngine.CalculateTotals(cart);
@@ -49,15 +41,7 @@ namespace ShoppingCartService.Tests
             });
             var mapper = config.CreateMapper();
             var checkoutEngine = new CheckOutEngine(shippingCalculator, mapper);
-
-            Cart cart = new Cart()
-            {
-                CustomerId = "id1",
-                CustomerType = CustomerType.Standard,
-                Items = new List<Item>() { new Item() { Price = 1, ProductName = "Bengt", Quantity = 1 } },
-                ShippingAddress = new Address() { City = "Dallas", Country = "USA" },
-                ShippingMethod = ShippingMethod.Standard
-            };
+            Cart cart = CreateCart();
 
             // Act
             var checkoutDto = checkoutEngine.CalculateTotals(cart);
@@ -71,7 +55,7 @@ namespace ShoppingCartService.Tests
         }
 
         [Fact]
-        public void Checkout_calculate_checkoutDto_discount_correct()
+        public void Checkout_calculate_discount_Premium_customer()
         {
             // Arrange
             ShippingCalculator shippingCalculator = new ShippingCalculator();
@@ -81,22 +65,25 @@ namespace ShoppingCartService.Tests
             });
             var mapper = config.CreateMapper();
             var checkoutEngine = new CheckOutEngine(shippingCalculator, mapper);
-
-            Cart cart = new Cart()
-            {
-                CustomerId = "id1",
-                CustomerType = CustomerType.Premium,
-                Items = new List<Item>() { new Item() { Price = 1, ProductName = "Bengt", Quantity = 1 } },
-                ShippingAddress = new Address() { City = "Dallas", Country = "USA" },
-                ShippingMethod = ShippingMethod.Standard
-            };
+            Cart cart = CreateCart(CustomerType.Premium);
 
             // Act
             var checkoutDto = checkoutEngine.CalculateTotals(cart);
 
             // Assert
             Assert.Equal(10.0, checkoutDto.CustomerDiscount);
-           
+
         }
+
+        private static Cart CreateCart(CustomerType customerType = CustomerType.Standard) =>
+            new Cart()
+            {
+                CustomerId = "id1",
+                CustomerType = customerType,
+                Items = new List<Item>() { new Item() { Price = 1, ProductName = "Bengt", Quantity = 1 } },
+                ShippingAddress = new Address() { City = "Dallas", Country = "USA" },
+                ShippingMethod = ShippingMethod.Standard
+            };
     }
 }
+

@@ -9,72 +9,34 @@ namespace ShoppingCartService.Tests
 {
     public class ShippingCalculatorTests
     {
-        [Fact]
-        public void Calculate_same_city_shipping_Standard_method()
+        [Theory]
+        [InlineData("Dallas", "USA", 1.0)]
+        [InlineData("Stockholm", "USA", 2.0)]
+        [InlineData("Stockholm", "Norway", 15.0)]
+        public void Calculate_same_city_shipping_Standard_method(string city, string country, double expectedCost)
         {
             ShippingCalculator calculator = new ShippingCalculator();
-            Cart cart = CreateCart();
+            Cart cart = CreateCartWithAddress(CreateAddress(city, country));
 
             var cost = calculator.CalculateShippingCost(cart);
 
-            Assert.Equal(1.0, cost);
-        }
-
-        [Fact]
-        public void Calculate_other_city_shipping_Standard_method()
-        {
-            ShippingCalculator calculator = new ShippingCalculator();
-            Cart cart = CreateCartWithAddress(CreateAddress("Stockholm"));
-
-            var cost = calculator.CalculateShippingCost(cart);
-
-            Assert.Equal(2.0, cost);
-        }
-
-        [Fact]
-        public void Calculate_international_shipping_Standard_method()
-        {
-            ShippingCalculator calculator = new ShippingCalculator();
-            Cart cart = CreateCartWithAddress(CreateAddress("Stockholm", "Norway"));
-
-            var cost = calculator.CalculateShippingCost(cart);
-
-            Assert.Equal(15.0, cost);
+            Assert.Equal(expectedCost, cost);
         }
 
         #region expedited
 
-        [Fact]
-        public void Calculate_same_city_shipping_Expedited_method()
+        [Theory]
+        [InlineData("Dallas", "USA", 1.2)]
+        [InlineData("Helsinki", "USA", 2.4)]
+        [InlineData("Oslo", "Norway", 18.0)]
+        public void Calculate_same_city_shipping_Expedited_method(string city, string country, double expectedCost)
         {
             ShippingCalculator calculator = new ShippingCalculator();
-            var cart = CreateCartWithShippingMethod(ShippingMethod.Expedited);
+            var cart = CreateCart(CreateAddress(city, country), ShippingMethod.Expedited);
 
             var cost = calculator.CalculateShippingCost(cart);
 
-            Assert.Equal(1.2, cost);
-        }
-
-        [Fact]
-        public void Calculate_other_city_shipping_Expedited_method()
-        {
-            ShippingCalculator calculator = new ShippingCalculator();
-            var cart = CreateCart(CreateAddress("Helsinki"), ShippingMethod.Expedited);
-
-            var cost = calculator.CalculateShippingCost(cart);
-
-            Assert.Equal(2.4, cost);
-        }
-
-        [Fact]
-        public void Calculate_international_shipping_Expedited_method()
-        {
-            ShippingCalculator calculator = new ShippingCalculator();
-            var cart = CreateCart(CreateAddress("Oslo", "Norway"), ShippingMethod.Expedited);
-
-            var cost = calculator.CalculateShippingCost(cart);
-
-            Assert.Equal(18.0, cost);
+            Assert.Equal(expectedCost, cost);
         }
 
         #endregion
@@ -91,23 +53,6 @@ namespace ShoppingCartService.Tests
                     Quantity=quantity,
                     ProductId = $"Id{name}"
                 }
-            };
-        }
-
-        private Cart CreateCart(
-            List<Item> items,
-            Address address,
-            string customerId = "id1",
-            CustomerType type = CustomerType.Standard,
-            ShippingMethod shippingMethod = ShippingMethod.Standard)
-        {
-            return new Cart()
-            {
-                CustomerId = customerId,
-                CustomerType = CustomerType.Standard,
-                Items = new List<Item>() { new Item() { Price = 1, ProductName = "Bengt", Quantity = 1 } },
-                ShippingAddress = new Address() { City = "Houston", Country = "USA" },
-                ShippingMethod = ShippingMethod.Standard
             };
         }
 

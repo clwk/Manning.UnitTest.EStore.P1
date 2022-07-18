@@ -1,14 +1,16 @@
 using ShoppingCartService.Models;
 using Xunit;
 using ShoppingCartService.BusinessLogic.Validation;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace ShoppingCartService.Tests
 {
     public class AddressValidatorTests
     {
-        private Address FullAddress { get; }
+        private static Address FullAddress { get; }
 
-        public AddressValidatorTests()
+        static AddressValidatorTests()
         {
             FullAddress = new Address()
             {
@@ -17,46 +19,14 @@ namespace ShoppingCartService.Tests
                 Street = "King's Street"
             };
         }
-        [Fact]
-        public void Address_null_isinvalid()
+
+        [Theory]
+        [MemberData(nameof(Data))]
+        public void Address_null_or_any_empty_field_isinvalid(Address address)
         {
-            Address address = null;
             var validator = new AddressValidator();
 
             var isValid = validator.IsValid(address);
-
-            Assert.False(isValid);
-        }
-
-        [Fact]
-        public void Address_city_empty_isinvalid()
-        {
-            var addressCityEmpty = FullAddress with { City = "" };
-            var validator = new AddressValidator();
-
-            var isValid = validator.IsValid(addressCityEmpty);
-
-            Assert.False(isValid);
-        }
-
-        [Fact]
-        public void Address_country_empty_isinvalid()
-        {
-            var addressCityEmpty = FullAddress with { Country="" };
-            var validator = new AddressValidator();
-
-            var isValid = validator.IsValid(addressCityEmpty);
-
-            Assert.False(isValid);
-        }
-
-        [Fact]
-        public void Address_street_empty_isinvalid()
-        {
-            var addressCityEmpty = FullAddress with { Street="" };
-            var validator = new AddressValidator();
-
-            var isValid = validator.IsValid(addressCityEmpty);
 
             Assert.False(isValid);
         }
@@ -76,5 +46,14 @@ namespace ShoppingCartService.Tests
 
             Assert.True(isValid);
         }
+
+        public static IEnumerable<object[]> Data =>
+            new List<object[]>
+            {
+                new object[] {null },
+                new object[] {FullAddress with { City = "" } },
+                new object[] {FullAddress with { Country = "" } },
+                new object[] {FullAddress with { Street = "" } },
+            };
     }
 }
